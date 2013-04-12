@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
-using Microsoft.Win32;
 
 namespace MyEd
 {
@@ -13,14 +12,12 @@ namespace MyEd
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public delegate void FileChangedHandler (String filePath, bool isFileSaved);
-
-		public event FileChangedHandler FileChanged;
+		public delegate void FileChangedHandler(String filePath, bool isFileSaved);
 
 		private const double Pt = 96/72.0;
 
-		private bool isFileSaved = false;
 		private readonly Dialogs _dialogs;
+		private bool isFileSaved;
 
 		public MainWindow()
 		{
@@ -39,11 +36,6 @@ namespace MyEd
 			_dialogs = new Dialogs();
 		}
 
-		void UpdateFileSaveStatus(string filePath, bool isFileSaved)
-		{
-			this.isFileSaved = isFileSaved;
-		}
-
 		private string FilePath
 		{
 			get
@@ -56,7 +48,6 @@ namespace MyEd
 			}
 			set { Application.Current.Properties["CurrentFile"] = value; }
 		}
-
 
 		#region Open, Save, New, Open last file or from command line
 
@@ -78,11 +69,9 @@ namespace MyEd
 
 		private void Open_Click(object sender, RoutedEventArgs e)
 		{
-			var document = FileOperations.OpenFile(Dialogs.OpenXmlDialog());
+			FlowDocument document = FileOperations.OpenFile(Dialogs.OpenXmlDialog());
 			DisplayDocument(document);
 		}
-
-
 
 
 		private void Exit_Click(object sender, RoutedEventArgs e)
@@ -112,8 +101,6 @@ namespace MyEd
 		}
 
 
-
-
 		private void New_Click(object sender, RoutedEventArgs e)
 		{
 			FilePath = "";
@@ -122,10 +109,15 @@ namespace MyEd
 
 		#endregion
 
+		public event FileChangedHandler FileChanged;
 
+		private void UpdateFileSaveStatus(string filePath, bool isFileSaved)
+		{
+			this.isFileSaved = isFileSaved;
+		}
 
 		/// <summary>
-		/// Display new document
+		///     Display new document
 		/// </summary>
 		/// <param name="document"></param>
 		private void DisplayDocument(FlowDocument document)
@@ -134,7 +126,6 @@ namespace MyEd
 			if (FileChanged != null)
 				FileChanged(FilePath, true);
 		}
-
 
 		private void MyWindow_Closing(object sender, CancelEventArgs e)
 		{
@@ -150,13 +141,11 @@ namespace MyEd
 			userPrefs.Save();
 		}
 
-
 		private void EdBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			if ((e.Changes.Count < 2) && (e.Changes.Count > 0) && (this.IsInitialized))
+			if ((e.Changes.Count < 2) && (e.Changes.Count > 0) && (IsInitialized))
 				if (FileChanged != null)
 					FileChanged(FilePath, false);
-			
 		}
 
 		private void ChangeTitle(string filepath, bool isFileSaved)
@@ -164,36 +153,18 @@ namespace MyEd
 			string title = "MyED";
 			if (!isFileSaved) title += " *";
 			title += " " + filepath;
-			this.Title = title;
+			Title = title;
 		}
 
-
-		private void LineHeight1_Click(object sender, RoutedEventArgs e)
-		{
-			EdBox.Document.LineHeight = 1;
-		}
-
-		private void LineHeight2_Click(object sender, RoutedEventArgs e)
-		{
-			EdBox.Document.LineHeight = 4;
-		}
-
-		private void LineHeight3_Click(object sender, RoutedEventArgs e)
-		{
-			EdBox.Document.LineHeight = 8;
-		}
-
-		private void OpenCmdExecuted(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+		private void OpenCmdExecuted(object sender, ExecutedRoutedEventArgs e)
 		{
 			FileOperations.OpenFile(Dialogs.OpenXmlDialog());
 		}
 
-		private void OpenCmdCanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+		private void OpenCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			if (!this.isFileSaved)
+			if (!isFileSaved)
 			{
-
-
 			}
 
 			else e.CanExecute = true;

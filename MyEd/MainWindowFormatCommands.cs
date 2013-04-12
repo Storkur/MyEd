@@ -33,7 +33,6 @@ namespace MyEd
 			EdBox.Selection.ApplyPropertyValue(FlowDocument.FontWeightProperty, newWeight);
 		}
 
-
 		private void Italic_Click(object sender, RoutedEventArgs e)
 		{
 			object fontStyle = EdBox.Selection.GetPropertyValue(FlowDocument.FontStyleProperty);
@@ -52,7 +51,6 @@ namespace MyEd
 
 			EdBox.Selection.ApplyPropertyValue(FlowDocument.FontStyleProperty, newFontStyle);
 		}
-
 
 		private void Underline_Click(object sender, RoutedEventArgs e)
 		{
@@ -73,12 +71,10 @@ namespace MyEd
 			EdBox.Selection.ApplyPropertyValue(Inline.TextDecorationsProperty, newTextDecoration);
 		}
 
-
 		private void ClearFormat_Click(object sender, RoutedEventArgs e)
 		{
 			EdBox.Selection.ClearAllProperties();
 		}
-
 
 		private void pt12_Click(object sender, RoutedEventArgs e)
 		{
@@ -118,6 +114,21 @@ namespace MyEd
 			}
 
 			EdBox.Selection.ApplyPropertyValue(FlowDocument.FontSizeProperty, textSize * Pt);
+		}
+
+		private void LineHeight1_Click(object sender, RoutedEventArgs e)
+		{
+			EdBox.Document.LineHeight = 1;
+		}
+
+		private void LineHeight2_Click(object sender, RoutedEventArgs e)
+		{
+			EdBox.Document.LineHeight = 4;
+		}
+
+		private void LineHeight3_Click(object sender, RoutedEventArgs e)
+		{
+			EdBox.Document.LineHeight = 8;
 		}
 
 		#endregion
