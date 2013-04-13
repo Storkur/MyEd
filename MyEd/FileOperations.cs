@@ -25,12 +25,14 @@ namespace MyEd
 				var xmlTextReader = new XmlTextReader(stringReader);
 				return (FlowDocument)XamlReader.Load(xmlTextReader);
 			}
-			else return new FlowDocument();
+			else return null;
         }
 
 
-        public static void SaveFile(FlowDocument document, string FilePath)
+        public static bool SaveFile(FlowDocument document, string FilePath)
         {
+	        if (FilePath == "") 
+				return false;
             var data = XamlWriter.Save(document);
 
             Stream stream = File.Open(FilePath, FileMode.Create);
@@ -38,6 +40,8 @@ namespace MyEd
             sw.Write(data);
             sw.Close();
             stream.Close();
+
+	        return true;
         }
     }
 }

@@ -6,15 +6,12 @@ namespace MyEd
 {
 	public class Dialogs
 	{
-		private FlowDocument document;
-		private string filepath;
-
 		public Dialogs()
 		{
 
 		}
 
-		public MessageBoxResult NotSavingMessageBoxResult()
+		public static MessageBoxResult SaveBeforeOpenMessageBoxResult()
 		{
 			return MessageBox.Show("Сохранить изменения в файл?",
 			                       "Выход без сохранения!", MessageBoxButton.YesNoCancel,

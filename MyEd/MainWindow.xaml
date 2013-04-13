@@ -4,17 +4,13 @@
         Title="MyED" Height="350" Width="525" WindowStartupLocation="CenterScreen" Closing="MyWindow_Closing" BorderThickness="0" Icon="Edit.ico">
 	<Window.CommandBindings>
 		<CommandBinding Command="ApplicationCommands.Open" 
-						Executed="OpenCmdExecuted" 
-						CanExecute="OpenCmdCanExecute" />
+						Executed="OpenCmdExecuted" />
 		<CommandBinding Command="ApplicationCommands.Save" 
-						Executed="SaveCmdExecuted" 
-						CanExecute="SaveCmdCanExecute"  />
+						Executed="SaveCmdExecuted"  />
 		<CommandBinding Command="ApplicationCommands.SaveAs" 
-						Executed="SaveAsCmdExecuted" 
-						CanExecute="SaveAsCmdCanExecute" />
+						Executed="SaveAsCmdExecuted" />
 		<CommandBinding Command="ApplicationCommands.Close" 
-						Executed="CloseCmdExecuted" 
-						CanExecute="CloseCmdCanExecute" />
+						Executed="CloseCmdExecuted"  />
 	</Window.CommandBindings>
 	<Grid>
         <RichTextBox x:Name="EdBox" Margin="0"  BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Block.LineHeight="1" FontFamily="Consolas" FontSize="14.667" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsTab="True" TextChanged="EdBox_TextChanged"  >
@@ -40,7 +36,7 @@
 					<Separator />
                     <Separator />
 					<MenuItem x:Name="New" Header="_New" Click="New_Click"/>
-                    <MenuItem x:Name="Open" Header="_Open..." Click="Open_Click"/>
+					<MenuItem x:Name="Open" Header="_Open..." Command="ApplicationCommands.Open"/>
                     <MenuItem x:Name="Save" Header="_Save" Click="Save_Click"/>
 					<MenuItem x:Name="SaveAs" Header="_Save As..." Click="SaveAs_Click"/>
                     <MenuItem x:Name="Exit" Header="_Exit" Click="Exit_Click"/>

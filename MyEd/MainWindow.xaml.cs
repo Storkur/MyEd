@@ -12,9 +12,11 @@ namespace MyEd
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public delegate void FileChangedHandler(String filePath, bool isFileSaved);
+		public delegate void FilePathChangedHandler(String filePath);
 
-		private const double Pt = 96/72.0;
+		public delegate void FileSavedHandler(bool isFileSaved);
+
+		private const double Pt = 96 / 72.0;
 
 		private readonly Dialogs _dialogs;
 		private bool isFileSaved;
@@ -32,7 +34,7 @@ namespace MyEd
 			WindowState = userPrefs.WindowState;
 			StartupFileLoading(userPrefs);
 			FileChanged += ChangeTitle;
-			FileChanged += UpdateFileSaveStatus;
+			SetFileSaveStatus += UpdateFileSaveStatus;
 			_dialogs = new Dialogs();
 		}
 
@@ -42,11 +44,17 @@ namespace MyEd
 			{
 				if (Application.Current.Properties["CurrentFile"] is string)
 				{
-					return (string) Application.Current.Properties["CurrentFile"];
+					return (string)Application.Current.Properties["CurrentFile"];
 				}
 				else return "";
 			}
 			set { Application.Current.Properties["CurrentFile"] = value; }
+		}
+
+		private FlowDocument Document
+		{
+			get { return EdBox.Document; }
+			set { EdBox.Document = value; }
 		}
 
 		#region Open, Save, New, Open last file or from command line
@@ -56,21 +64,14 @@ namespace MyEd
 			if (App.Args.Length > 0)
 			{
 				String filePath = App.Args[0];
-				DisplayDocument(FileOperations.OpenFile(filePath));
+				Document = FileOperations.OpenFile(filePath);
 			}
 			else
 			{
 				if (userPrefs.LastFilePath != "")
-					DisplayDocument(FileOperations.OpenFile(userPrefs.LastFilePath));
+					Document = FileOperations.OpenFile(userPrefs.LastFilePath);
 			}
 			FilePath = userPrefs.LastFilePath;
-		}
-
-
-		private void Open_Click(object sender, RoutedEventArgs e)
-		{
-			FlowDocument document = FileOperations.OpenFile(Dialogs.OpenXmlDialog());
-			DisplayDocument(document);
 		}
 
 
@@ -86,7 +87,7 @@ namespace MyEd
 			{
 				FileOperations.SaveFile(EdBox.Document, FilePath);
 				if (FileChanged != null)
-					FileChanged(FilePath, true);
+					FileChanged(FilePath);
 			}
 			else
 			{
@@ -109,23 +110,14 @@ namespace MyEd
 
 		#endregion
 
-		public event FileChangedHandler FileChanged;
+		public event FilePathChangedHandler FileChanged;
+		public event FileSavedHandler SetFileSaveStatus;
 
-		private void UpdateFileSaveStatus(string filePath, bool isFileSaved)
+		private void UpdateFileSaveStatus(bool isFileSaved)
 		{
 			this.isFileSaved = isFileSaved;
 		}
 
-		/// <summary>
-		///     Display new document
-		/// </summary>
-		/// <param name="document"></param>
-		private void DisplayDocument(FlowDocument document)
-		{
-			EdBox.Document = document;
-			if (FileChanged != null)
-				FileChanged(FilePath, true);
-		}
 
 		private void MyWindow_Closing(object sender, CancelEventArgs e)
 		{
@@ -145,39 +137,50 @@ namespace MyEd
 		{
 			if ((e.Changes.Count < 2) && (e.Changes.Count > 0) && (IsInitialized))
 				if (FileChanged != null)
-					FileChanged(FilePath, false);
+					FileChanged(FilePath);
 		}
 
-		private void ChangeTitle(string filepath, bool isFileSaved)
+		private void ChangeTitle(string filepath)
 		{
 			string title = "MyED";
 			if (!isFileSaved) title += " *";
-			title += " " + filepath;
-			Title = title;
+			Title = title; //TODO медленно работает
 		}
 
 		private void OpenCmdExecuted(object sender, ExecutedRoutedEventArgs e)
 		{
-			FileOperations.OpenFile(Dialogs.OpenXmlDialog());
+			OpenFileCommand();
 		}
 
-		private void OpenCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
+		private void OpenFileCommand()
 		{
-			if (!isFileSaved)
+			MessageBoxResult result = Dialogs.SaveBeforeOpenMessageBoxResult();
+			if (result == MessageBoxResult.Yes)
 			{
+				bool fileSaveResult = FileOperations.SaveFile(Document, Dialogs.SaveAsXmlDialog());
+				if (fileSaveResult)
+				{
+					TryOpenNewDocument();
+				}
 			}
+			else if (result == MessageBoxResult.No)
+			{
+				TryOpenNewDocument();
+			}
+		}
 
-			else e.CanExecute = true;
+		private void TryOpenNewDocument()
+		{
+			var document = FileOperations.OpenFile(Dialogs.OpenXmlDialog());
+			if (document != null)
+			{
+				Document = document;
+				UpdateFileSaveStatus(true);
+			}
 		}
 
 		private void SaveCmdExecuted(object sender, ExecutedRoutedEventArgs e)
 		{
-			throw new NotImplementedException();
-		}
-
-		private void SaveCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
-		{
-			throw new NotImplementedException();
 		}
 
 		private void SaveAsCmdExecuted(object sender, ExecutedRoutedEventArgs e)
@@ -185,17 +188,7 @@ namespace MyEd
 			throw new NotImplementedException();
 		}
 
-		private void SaveAsCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
 		private void CloseCmdExecuted(object sender, ExecutedRoutedEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
-		private void CloseCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			throw new NotImplementedException();
 		}
