@@ -55,23 +55,6 @@ namespace MyEd
 				Dialogs.CommonExceprionMsg(e.Message);
 		        return false;
 	        }
-
         }
-
-		/// <summary>
-		/// To get a valid FILE NAME after removing the Invalid file name characters, you can use the following function.
-		/// </summary>
-		/// <param name="fileName"></param>
-		/// <returns></returns>
-
-		public static string RemoveInvalidFileNameChars(string fileName)
-		{
-			char[] invalidFileChars = Path.GetInvalidFileNameChars();
-			foreach (char invalidFChar in invalidFileChars)
-			{
-				fileName = fileName.Replace(invalidFChar.ToString(),"");
-			}
-			return fileName;
-		}
 	}
 }

@@ -13,7 +13,7 @@
 						Executed="CloseCmdExecuted"  />
 	</Window.CommandBindings>
 	<Grid>
-        <RichTextBox x:Name="EdBox" Margin="0"  BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Block.LineHeight="1" FontFamily="Consolas" FontSize="14.667" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsTab="True" TextChanged="EdBox_TextChanged"  >
+        <RichTextBox x:Name="EdBox" Margin="0"  BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Block.LineHeight="1" FontFamily="Consolas" FontSize="14.667" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsTab="True" TextChanged="EdBox_TextChanged" AcceptsReturn="False"  >
             <RichTextBox.ContextMenu>
 				<ContextMenu>
 					<MenuItem x:Name="Bold" Header="_Bold" Click="Bold_Click" />
@@ -25,13 +25,13 @@
 						<MenuItem x:Name="LineHeight2" Header="2" Click="LineHeight2_Click"/>
 						<MenuItem x:Name="LineHeight3" Header="3" Click="LineHeight3_Click"/>
 					</MenuItem>
-					<MenuItem Header="FontSize">
+					<MenuItem Header="Font Size">
 						<MenuItem x:Name="pt12" Header="12pt" Click="pt12_Click"/>
 						<MenuItem x:Name="pt14" Header="14pt" Click="pt14_Click"/>
 						<MenuItem x:Name="pt16" Header="16pt" Click="pt16_Click"/>
 						<MenuItem x:Name="pt20" Header="20pt" Click="pt20_Click"/>
 						<MenuItem x:Name="pt24" Header="24pt" Click="pt24_Click"/>
-						<TextBox x:Name="FontSize" Width="50" TextChanged="FontSize_TextChanged"/>
+						<TextBox Name="CustomFontSize" Width="150"  KeyDown="FontSize_KeyDown"/>
 					</MenuItem>
 					<Separator />
                     <Separator />

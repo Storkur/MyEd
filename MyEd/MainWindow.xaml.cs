@@ -34,15 +34,16 @@ namespace MyEd
 			Top = userPrefs.WindowTop;
 			Left = userPrefs.WindowLeft;
 			WindowState = userPrefs.WindowState;
-			StartupFileLoading(userPrefs);
-			FilePathChanged += ChangeTitle;
 			FilePathChanged += ChangeFilepath;
 			SetFileSaveStatus += UpdateFileSaveStatus;
+
+			StartupFileLoading(userPrefs);
 		}
 
 		private void ChangeFilepath(string filepath)
 		{
 			FilePath = filepath;
+			ChangeWindowTitle();
 		}
 
 		private string FilePath
@@ -51,10 +52,9 @@ namespace MyEd
 			{
 				if (Application.Current.Properties["CurrentFile"] is string)
 				{
-					var filePath = (string)Application.Current.Properties["CurrentFile"];
-					return FileOperations.RemoveInvalidFileNameChars(filePath);
+					return (string)Application.Current.Properties["CurrentFile"];
 				}
-				else return "";
+				return "";
 			}
 			set { Application.Current.Properties["CurrentFile"] = value; }
 		}
@@ -71,6 +71,12 @@ namespace MyEd
 			}
 		}
 
+		private bool IsFileSaved
+		{
+			get { return isFileSaved; }
+			set { isFileSaved = value; }
+		}
+
 		#region Open, Save, New, Open last file or from command line
 
 		private void StartupFileLoading(UserPreferences userPrefs)
@@ -85,7 +91,7 @@ namespace MyEd
 				if (userPrefs.LastFilePath != "")
 					Document = FileOperations.OpenFile(userPrefs.LastFilePath);
 			}
-			FilePath = userPrefs.LastFilePath;
+			FilePathChanged(userPrefs.LastFilePath);
 		}
 
 
@@ -128,7 +134,8 @@ namespace MyEd
 
 		private void UpdateFileSaveStatus(bool isFileSaved)
 		{
-			this.isFileSaved = isFileSaved;
+			IsFileSaved = isFileSaved;
+			ChangeWindowTitle();
 		}
 
 		private void MyWindow_Closing(object sender, CancelEventArgs e)
@@ -147,18 +154,18 @@ namespace MyEd
 
 		private void EdBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			if ((e.Changes.Count < 2) && (e.Changes.Count > 0) && (IsInitialized))
+			if((e.Changes.Count > 0) && (IsInitialized))
 				if (FilePathChanged != null)
 					FilePathChanged(FilePath);
 		}
 
-		private void ChangeTitle(string filepath)
+		private void ChangeWindowTitle()
 		{
 			string title = "MyED";
-			if (!isFileSaved) title += " *";
+			if (!IsFileSaved) title += " *";
 
-			if (filepath != "")
-				title += " " + filepath;
+			if (FilePath != "")
+				title += " " + FilePath;
 			Title = title; //TODO медленно работает
 		}
 
@@ -204,15 +211,20 @@ namespace MyEd
 
 		private void SaveCmdExecuted(object sender, ExecutedRoutedEventArgs e)
 		{
-			if (FilePath != "")
+			if (FilePath != "")//File is saved
 			{
-				FileOperations.SaveFile(EdBox.Document, FilePath);;
+				var fileSaveResult = FileOperations.SaveFile(EdBox.Document, FilePath);
+				if (SetFileSaveStatus != null)
+					SetFileSaveStatus(fileSaveResult);
 			}
 			else
 			{
-				FileOperations.SaveFile(EdBox.Document, Dialogs.SaveAsXmlDialog());
+				var filePath = Dialogs.SaveAsXmlDialog();
+				var fileSaveResult = FileOperations.SaveFile(EdBox.Document, filePath);
 				if (FilePathChanged != null)
-					FilePathChanged(FilePath);
+					FilePathChanged(filePath);
+				if (SetFileSaveStatus != null)
+					SetFileSaveStatus(fileSaveResult);
 			}
 		}
 
@@ -225,5 +237,6 @@ namespace MyEd
 		{
 			throw new NotImplementedException();
 		}
+		
 	}
 }

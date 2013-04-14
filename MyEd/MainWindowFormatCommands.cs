@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 
 namespace MyEd
 {
@@ -100,20 +101,28 @@ namespace MyEd
 		{
 			EdBox.Selection.ApplyPropertyValue(FlowDocument.FontSizeProperty, 24.0 * Pt);
 		}
-
-		private void FontSize_TextChanged(object sender, TextChangedEventArgs e)
+		
+		/// <summary>
+		/// Select custom font size
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void FontSize_KeyDown(object sender, KeyEventArgs e)
 		{
-			double textSize = 12;
-			string text = ((TextBox)sender).Text;
-			try
+			if (e.Key == Key.Return)
 			{
-				textSize = Double.Parse(text);
-			}
-			catch
-			{
-			}
+				double textSize = 12;
+				string text = ((TextBox)sender).Text;
+				try
+				{
+					textSize = Double.Parse(text);
+				}
+				catch
+				{
+				}
 
-			EdBox.Selection.ApplyPropertyValue(FlowDocument.FontSizeProperty, textSize * Pt);
+				EdBox.Selection.ApplyPropertyValue(FlowDocument.FontSizeProperty, textSize * Pt);
+			}
 		}
 
 		private void LineHeight1_Click(object sender, RoutedEventArgs e)
