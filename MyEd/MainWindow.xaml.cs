@@ -16,9 +16,10 @@ namespace MyEd
 
 		public delegate void FileSavedHandler(bool isFileSaved);
 
-		private const double Pt = 96 / 72.0;
+		public event FilePathChangedHandler FilePathChanged;
+		public event FileSavedHandler SetFileSaveStatus;
 
-		private readonly Dialogs _dialogs;
+		private const double Pt = 96 / 72.0;
 		private bool isFileSaved;
 
 		public MainWindow()
@@ -33,9 +34,8 @@ namespace MyEd
 			Left = userPrefs.WindowLeft;
 			WindowState = userPrefs.WindowState;
 			StartupFileLoading(userPrefs);
-			FileChanged += ChangeTitle;
+			FilePathChanged += ChangeTitle;
 			SetFileSaveStatus += UpdateFileSaveStatus;
-			_dialogs = new Dialogs();
 		}
 
 		private string FilePath
@@ -54,7 +54,13 @@ namespace MyEd
 		private FlowDocument Document
 		{
 			get { return EdBox.Document; }
-			set { EdBox.Document = value; }
+			set
+			{
+				if (value != null)
+					EdBox.Document = value;
+				else 
+					EdBox.Document = new FlowDocument();
+			}
 		}
 
 		#region Open, Save, New, Open last file or from command line
@@ -86,8 +92,8 @@ namespace MyEd
 			if (FilePath != "")
 			{
 				FileOperations.SaveFile(EdBox.Document, FilePath);
-				if (FileChanged != null)
-					FileChanged(FilePath);
+				if (FilePathChanged != null)
+					FilePathChanged(FilePath);
 			}
 			else
 			{
@@ -110,14 +116,12 @@ namespace MyEd
 
 		#endregion
 
-		public event FilePathChangedHandler FileChanged;
-		public event FileSavedHandler SetFileSaveStatus;
+
 
 		private void UpdateFileSaveStatus(bool isFileSaved)
 		{
 			this.isFileSaved = isFileSaved;
 		}
-
 
 		private void MyWindow_Closing(object sender, CancelEventArgs e)
 		{
@@ -136,14 +140,16 @@ namespace MyEd
 		private void EdBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			if ((e.Changes.Count < 2) && (e.Changes.Count > 0) && (IsInitialized))
-				if (FileChanged != null)
-					FileChanged(FilePath);
+				if (FilePathChanged != null)
+					FilePathChanged(FilePath);
 		}
 
 		private void ChangeTitle(string filepath)
 		{
 			string title = "MyED";
 			if (!isFileSaved) title += " *";
+			
+			if (filepath != "") title += " " + filepath;
 			Title = title; //TODO медленно работает
 		}
 
@@ -152,6 +158,9 @@ namespace MyEd
 			OpenFileCommand();
 		}
 
+		/// <summary>
+		/// Invokes on Open File command from context menu or Ctrl+O, display some dialogs
+		/// </summary>
 		private void OpenFileCommand()
 		{
 			MessageBoxResult result = Dialogs.SaveBeforeOpenMessageBoxResult();
@@ -169,13 +178,18 @@ namespace MyEd
 			}
 		}
 
+		/// <summary>
+		/// Display open file dialog and try to open document
+		/// </summary>
 		private void TryOpenNewDocument()
 		{
-			var document = FileOperations.OpenFile(Dialogs.OpenXmlDialog());
+			var newFilePath = Dialogs.OpenXmlDialog();
+			var document = FileOperations.OpenFile(newFilePath);
 			if (document != null)
 			{
-				Document = document;
+				Document = document; 
 				UpdateFileSaveStatus(true);
+				FilePathChanged(newFilePath);
 			}
 		}
 
