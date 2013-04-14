@@ -28,20 +28,50 @@ namespace MyEd
 			else return null;
         }
 
-
+		/// <summary>
+		/// Save xml document in file to disk
+		/// </summary>
+		/// <param name="document">Document content</param>
+		/// <param name="FilePath">Filepath to save document</param>
+		/// <returns></returns>
         public static bool SaveFile(FlowDocument document, string FilePath)
         {
-	        if (FilePath == "") 
-				return false;
-            var data = XamlWriter.Save(document);
+	        try
+	        {
+				if (FilePath == "")
+					return false;
+				var data = XamlWriter.Save(document);
 
-            Stream stream = File.Open(FilePath, FileMode.Create);
-            StreamWriter sw = new StreamWriter(stream);
-            sw.Write(data);
-            sw.Close();
-            stream.Close();
+				Stream stream = File.Open(FilePath, FileMode.Create);
+				StreamWriter sw = new StreamWriter(stream);
+				sw.Write(data);
+				sw.Close();
+				stream.Close();
 
-	        return true;
+				return true;
+	        }
+	        catch (Exception e)
+	        {
+				Dialogs.CommonExceprionMsg(e.Message);
+		        return false;
+	        }
+
         }
-    }
+
+		/// <summary>
+		/// To get a valid FILE NAME after removing the Invalid file name characters, you can use the following function.
+		/// </summary>
+		/// <param name="fileName"></param>
+		/// <returns></returns>
+
+		public static string RemoveInvalidFileNameChars(string fileName)
+		{
+			char[] invalidFileChars = Path.GetInvalidFileNameChars();
+			foreach (char invalidFChar in invalidFileChars)
+			{
+				fileName = fileName.Replace(invalidFChar.ToString(),"");
+			}
+			return fileName;
+		}
+	}
 }

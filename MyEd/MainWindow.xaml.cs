@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -35,7 +36,13 @@ namespace MyEd
 			WindowState = userPrefs.WindowState;
 			StartupFileLoading(userPrefs);
 			FilePathChanged += ChangeTitle;
+			FilePathChanged += ChangeFilepath;
 			SetFileSaveStatus += UpdateFileSaveStatus;
+		}
+
+		private void ChangeFilepath(string filepath)
+		{
+			FilePath = filepath;
 		}
 
 		private string FilePath
@@ -44,7 +51,8 @@ namespace MyEd
 			{
 				if (Application.Current.Properties["CurrentFile"] is string)
 				{
-					return (string)Application.Current.Properties["CurrentFile"];
+					var filePath = (string)Application.Current.Properties["CurrentFile"];
+					return FileOperations.RemoveInvalidFileNameChars(filePath);
 				}
 				else return "";
 			}
@@ -148,8 +156,9 @@ namespace MyEd
 		{
 			string title = "MyED";
 			if (!isFileSaved) title += " *";
-			
-			if (filepath != "") title += " " + filepath;
+
+			if (filepath != "")
+				title += " " + filepath;
 			Title = title; //TODO медленно работает
 		}
 
@@ -195,6 +204,16 @@ namespace MyEd
 
 		private void SaveCmdExecuted(object sender, ExecutedRoutedEventArgs e)
 		{
+			if (FilePath != "")
+			{
+				FileOperations.SaveFile(EdBox.Document, FilePath);;
+			}
+			else
+			{
+				FileOperations.SaveFile(EdBox.Document, Dialogs.SaveAsXmlDialog());
+				if (FilePathChanged != null)
+					FilePathChanged(FilePath);
+			}
 		}
 
 		private void SaveAsCmdExecuted(object sender, ExecutedRoutedEventArgs e)

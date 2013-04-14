@@ -18,6 +18,11 @@ namespace MyEd
 			                       MessageBoxImage.Warning);
 		}
 
+		public static void CommonExceprionMsg(string msg)
+		{
+			MessageBox.Show(msg, "Произошло исключение!", MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+
 		//public bool SaveAndOpenDlg()
 		//{
 		//	var result = NotSavingMessageBoxResult();

@@ -37,7 +37,7 @@
                     <Separator />
 					<MenuItem x:Name="New" Header="_New" Click="New_Click"/>
 					<MenuItem x:Name="Open" Header="_Open..." Command="ApplicationCommands.Open"/>
-                    <MenuItem x:Name="Save" Header="_Save" Click="Save_Click"/>
+					<MenuItem x:Name="Save" Header="_Save" Command="ApplicationCommands.Save"/>
 					<MenuItem x:Name="SaveAs" Header="_Save As..." Click="SaveAs_Click"/>
                     <MenuItem x:Name="Exit" Header="_Exit" Click="Exit_Click"/>
                 </ContextMenu>
